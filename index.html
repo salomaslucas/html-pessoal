@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>TROPA DO PAU MEDIO</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1b1c1f 0%, #25262a 100%);
+      color: #ffffff;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, #1f1e1e 0%, #2b2b2b 100%);
+      width: 220px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+      border-right: 1px solid #444;
+    }
+
+    .sidebar h2 {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      color: #ffffff;
+      text-align: center;
+      padding: 0.5rem;
+      border-bottom: 2px solid #444;
+      background: linear-gradient(90deg, #960e0e, #ff1a1a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sidebar a {
+      color: #bbb;
+      text-decoration: none;
+      margin: 0.5rem 0;
+      display: block;
+      padding: 0.8rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .sidebar a:hover {
+      background: linear-gradient(45deg, #2b2b2b, #3a3a3a);
+      color: #00ffcc;
+      transform: translateX(5px);
+    }
+
+    .sidebar a.active {
+      background: linear-gradient(45deg, #960e0e, #ff1a1a);
+      color: white;
+      font-weight: bold;
+    }
+
+    .user-info {
+      margin-top: auto;
+      padding: 1rem;
+      background: linear-gradient(135deg, #36393f 0%, #40444b 100%);
+      border-radius: 12px;
+      border: 1px solid #555;
+      text-align: center;
+      display: none;
+    }
+
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #960e0e, #00ffcc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.5rem;
+      font-size: 1.5rem;
+    }
+
+    .logout-btn {
+      background: linear-gradient(45deg, #666, #888);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, #202225 0%, #36393f 100%);
+      padding: 1.5rem;
+      font-size: 1.6rem;
+      color: #ffffff;
+      font-weight: bold;
+      border-bottom: 2px solid #444;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notification-bell {
+      position: relative;
+      cursor: pointer;
+      font-size: 1.5rem;
+      padding: 0.5rem;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ff1a1a;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .notification-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 20px;
+      background: linear-gradient(135deg, #36393f 0%, #40444b 100%);
+      border: 1px solid #555;
+      border-radius: 8px;
+      width: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      display: none;
+    }
+
+    .notification-dropdown.show {
+      display: block;
+    }
+
+    .notification-item {
+      padding: 1rem;
+      border-bottom: 1px solid #555;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .notification-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-text {
+      font-size: 0.9rem;
+    }
+
+    .notification-time {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 0.3rem;
+    }
+
+    .content {
+      padding: 2rem;
+      flex: 1;
+      overflow-y: auto;
+      background: linear-gradient(135deg, #25262a 0%, #2f3136 100%);
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #36393f 0%, #40444b 100%);
+      padding: 2rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      border: 1px solid #555;
+      position: relative;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #960e0e, #00ffcc, #960e0e);
+    }
+
+    .card h3 {
+      margin-bottom: 1.5rem;
+      color: #00ffcc;
+      font-size: 1.4rem;
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 2rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 0.5rem;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 1rem;
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .auth-tab.active {
+      background: linear-gradient(45deg, #960e0e, #ff1a1a);
+      color: white;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    textarea {
+      margin: 1rem 0;
+      padding: 0.8rem;
+      width: 100%;
+      background: linear-gradient(135deg, #2b2d31 0%, #3a3c41 100%);
+      border: 2px solid #555;
+      color: white;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #00ffcc;
+      outline: none;
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      background: linear-gradient(45deg, #960e0e, #ff1a1a);
+      color: #ffffff;
+      padding: 0.8rem 1.8rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #ff1a1a, #ff4d4d);
+      transform: translateY(-2px);
+    }
+
+    .notice {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    .notice.success {
+      background: rgba(0, 255, 0, 0.1);
+      color: #00ff88;
+      border-left: 3px solid #00ff88;
+    }
+
+    .notice.error {
+      background: rgba(255, 0, 0, 0.1);
+      color: #ff6666;
+      border-left: 3px solid #ff6666;
+    }
+
+    .feed-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .post {
+      background: linear-gradient(135deg, #36393f 0%, #40444b 100%);
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      border: 1px solid #555;
+      position: relative;
+    }
+
+    .post::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #960e0e, #00ffcc, #960e0e);
+    }
+
+    .post-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #555;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .post-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #960e0e, #00ffcc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .post-author {
+      font-weight: bold;
+      color: #00ffcc;
+      cursor: pointer;
+    }
+
+    .post-time {
+      color: #888;
+      font-size: 0.9rem;
+      margin-left: auto;
+    }
+
+    .post-menu {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+
+    .post-menu:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .post-menu-dots {
+      font-size: 1.4rem;
+      color: #888;
+      line-height: 1;
+    }
+
+    .post-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: linear-gradient(135deg, #36393f 0%, #40444b 100%);
+      border: 1px solid #555;
+      border-radius: 8px;
+      min-width: 180px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      display: none;
+    }
+
+    .post-dropdown.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      border: none;
+      background: none;
+      color: white;
+      width: 100%;
+      text-align: left;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: normal;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: none;
+    }
+
+    .dropdown-item.edit {
+      color: #00ffcc;
+    }
+
+    .dropdown-item.delete {
+      color: #ff6666;
+    }
+
+    .dropdown-item.download {
+      color: #ffaa00;
+    }
+
+    .post-content {
+      padding: 1.5rem;
+    }
+
+    .post-text {
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .post-media {
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    .post-image,
+    .post-video {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .post-image:hover {
+      transform: scale(1.02);
+    }
+
+    .post-actions {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #555;
+      display: flex;
+      gap: 2rem;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: color 0.3s ease;
+      width: auto;
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: normal;
+    }
+
+    .action-btn:hover {
+      color: #00ffcc;
+      transform: none;
+      background: rgba(0, 255, 204, 0.1);
+    }
+
+    .action-btn.liked {
+      color: #ff1a1a;
+    }
+
+    .follow-btn {
+      background: linear-gradient(45deg, #00aa88, #00ffcc) !important;
+      padding: 0.3rem 0.8rem !important;
+      font-size: 0.8rem !important;
+      width: auto !important;
+      margin-left: 1rem;
+    }
+
+    .unfollow-btn {
+      background: linear-gradient(45deg, #960e0e, #ff1a1a) !important;
+      padding: 0.3rem 0.8rem !important;
+      font-size: 0.8rem !important;
+      width: auto !important;
+      margin-left: 1rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    .modal img,
+    .modal video {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 40px;
+      cursor: pointer;
+    }
+
+    .preview-area img,
+    .preview-area video {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .edit-modal, .share-modal {
+      display: none;
+      position: fixed;
+      z-index: 1001;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .edit-modal-content, .share-modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #36393f 0%, #40444b 100%);
+      padding: 2rem;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      border: 1px solid #555;
+    }
+
+    .share-modal-content {
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .edit-modal h3, .share-modal h3 {
+      color: #00ffcc;
+      margin-bottom: 1rem;
+    }
+
+    .edit-modal textarea {
+      width: 100%;
+      min-height: 120px;
+      margin-bottom: 1rem;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .modal-buttons button {
+      width: 50%;
+      padding: 0.8rem 1.5rem;
+    }
+
+    .cancel-btn {
+      background: linear-gradient(45deg, #666, #888) !important;
+    }
+
+    .share-link {
+      background: #2b2d31;
+      border: 1px solid #555;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #00ffcc;
+      word-break: break-all;
+      font-family: monospace;
+    }
+
+    .copy-btn {
+      background: linear-gradient(45deg, #00aa88, #00ffcc) !important;
+      margin-bottom: 1rem;
+    }
+
+    .user-profile-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #960e0e, #00ffcc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .profile-info h2 {
+      color: #00ffcc;
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #00ffcc;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .user-posts {
+      margin-top: 2rem;
+    }
+
+    .user-posts h3 {
+      border-bottom: 1px solid #555;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .comments-section {
+      margin-top: 1rem;
+      border-top: 1px solid #555;
+      padding-top: 1rem;
+    }
+
+    .comment-form {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .comment-input {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background: #2b2d31;
+      color: white;
+    }
+
+    .comment-btn {
+
+      padding: 0.5rem 1rem !important;
+      font-size: 0.9rem !important;
+      width: auto !important;
+      text-transform: none !important;
+       letter-spacing: normal !important;
+}
+    
+
+    .comments-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .comment {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid #444;
+    }
+
+    .comment-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #960e0e, #00ffcc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .comment-content {
+      flex: 1;
+    }
+
+    .comment-author {
+      font-weight: bold;
+      font-size: 0.9rem;
+      color: #00ffcc;
+    }
+
+    .comment-text {
+      font-size: 0.9rem;
+      margin-top: 0.2rem;
+    }
+
+    .comment-time {
+      font-size: 0.7rem;
+      color: #888;
+      margin-top: 0.2rem;
+    }
+
+    .highlight-post {
+      animation: highlight 2s;
+    }
+
+    @keyframes highlight {
+      0% { background-color: rgba(0, 255, 204, 0.1); }
+      100% { background-color: transparent; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Menu</h2>
+    <a id="feed-link" class="nav-link active">🏠 Feed</a>
+    <a id="perfil-link" class="nav-link" style="display: none;">👤 Perfil</a>
+    <a id="sobre-link" class="nav-link">ℹ️ Sobre</a>
+    
+    <div class="user-info" id="user-info">
+      <div class="user-avatar" id="user-avatar">👤</div>
+      <div id="user-display-name">Usuário</div>
+      <button class="logout-btn" id="logout-btn">Sair</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <span>TROPA DO PAU MEDIO SERVER! 🔥</span>
+      <div class="notification-bell" id="notification-bell">
+        🔔
+        <div class="notification-badge" id="notification-badge" style="display: none;">0</div>
+        <div class="notification-dropdown" id="notification-dropdown"></div>
+      </div>
+    </div>
+    
+    <div class="content">
+      <!-- Feed Page -->
+      <div id="feed" class="page active">
+        <!-- Auth Section -->
+        <div id="auth-section" style="max-width: 400px; margin: 0 auto;">
+          <div class="card">
+            <div class="auth-tabs">
+              <button class="auth-tab active" id="login-tab">Login</button>
+              <button class="auth-tab" id="register-tab">Cadastrar</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form">
+              <h3>🔐 Entrar na Conta</h3>
+              <input type="text" id="login-username" placeholder="👤 Usuário ou Email">
+              <input type="password" id="login-password" placeholder="🔒 Senha">
+              <button id="login-btn">Entrar</button>
+              <p id="login-status" class="notice"></p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" style="display: none;">
+              <h3>📝 Criar Conta Nova</h3>
+              <input type="text" id="reg-username" placeholder="👤 Nome de Usuário">
+              <input type="email" id="reg-email" placeholder="📧 Email">
+              <input type="text" id="reg-displayname" placeholder="✨ Nome para Exibição">
+              <input type="password" id="reg-password" placeholder="🔒 Senha">
+              <input type="password" id="reg-confirm-password" placeholder="🔒 Confirmar Senha">
+              <button id="register-btn">Criar Conta</button>
+              <p id="register-status" class="notice"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feed Section -->
+        <div id="feed-section" class="feed-container" style="display: none;">
+          <!-- Post Composer -->
+          <div class="card">
+            <h3>📤 Compartilhar Conteúdo</h3>
+            <textarea id="post-text" placeholder="No que você está pensando? Compartilhe com a tropa! 🔥"></textarea>
+            <input type="file" id="post-media" accept=".jpeg,.jpg,.png,.mp4,.mov">
+            <div id="media-preview" class="preview-area"></div>
+            <button id="create-post-btn">Postar</button>
+            <p id="post-status" class="notice"></p>
+          </div>
+
+          <!-- Posts Feed -->
+          <div id="posts-container"></div>
+        </div>
+      </div>
+
+      <!-- Profile Page -->
+      <div id="perfil" class="page">
+        <div class="card">
+          <h3>👤 Meu Perfil</h3>
+          <div id="profile-content">
+            <p>Suas informações de perfil aparecerão aqui após o login.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Profile Page -->
+      <div id="user-profile" class="page">
+        <div class="card">
+          <div id="user-profile-content"></div>
+        </div>
+      </div>
+
+      <!-- About Page -->
+      <div id="sobre" class="page">
+        <div class="card">
+          <h3>🔥 Sobre o TROPA DO PAU MEDIO</h3>
+          <p><strong>📖 O que é este servidor?</strong></p>
+          <p>O TROPA DO PAU MEDIO é uma rede social exclusiva, criada para oferecer uma experiência única de compartilhamento de conteúdo e interação entre membros.</p>
+          <br>
+          <p><strong>🎯 Nossa Missão</strong></p>
+          <p>Criar uma comunidade vibrante onde os membros podem compartilhar momentos, ideias e conteúdo visual de forma segura e divertida.</p>
+          <br>
+          <p><strong>⚡ Recursos Principais</strong></p>
+          <p>🔥 Feed em tempo real estilo Twitter/Reddit<br>
+          📸 Upload e visualização de imagens e vídeos<br>
+          👥 Sistema completo de usuários e perfis<br>
+          🔒 Autenticação segura e proteção de dados<br>
+          📱 Interface responsiva e moderna</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Media Modal -->
+  <div id="media-modal" class="modal">
+    <span class="close-modal">&times;</span>
+    <div class="modal-content" id="modal-content"></div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="edit-modal">
+    <div class="edit-modal-content">
+      <h3>✏️ Editar Post</h3>
+      <textarea id="edit-text" placeholder="Edite seu post..."></textarea>
+      <div class="modal-buttons">
+        <button id="save-edit-btn">Salvar</button>
+        <button id="cancel-edit-btn" class="cancel-btn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div id="share-modal" class="share-modal">
+    <div class="share-modal-content">
+      <h3>🔗 Compartilhar Post</h3>
+      <p>Copie o link abaixo para compartilhar este post:</p>
+      <div class="share-link" id="share-link"></div>
+      <button id="copy-link-btn" class="copy-btn">Copiar Link</button>
+      <button id="close-share-btn" class="cancel-btn">Fechar</button>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let currentUser = null;
+    let posts = [];
+    let users = [
+      { 
+        username: 'admin', 
+        email: 'admin@tropa.com', 
+        password: '1234', 
+        displayName: 'Administrador',
+        followers: [],
+        following: []
+      }
+    ];
+    let comments = [];
+    let notifications = [];
+    let viewingUserProfile = null;
+    let editingPostId = null;
+
+    // Sample posts
+    const samplePosts = [
+      {
+        id: 1,
+        author: 'TropaLeader',
+        displayName: 'Líder da Tropa',
+        text: 'Bem-vindos ao nosso novo feed! 🔥 Agora podemos compartilhar conteúdo como nas melhores redes sociais!',
+        time: '2h',
+        likes: 15,
+        liked: false,
+        comments: 3
+      },
+      {
+        id: 2,
+        author: 'PhotoPro',
+        displayName: 'Pro das Fotos',
+        text: 'Nova funcionalidade de imagens está incrível! 📸',
+        time: '4h',
+        likes: 12,
+        liked: false,
+        comments: 5,
+        media: {
+          type: 'image',
+          url: 'https://picsum.photos/600/400?random=1'
+        }
+      }
+    ];
+
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', function() {
+      loadDataFromServer();
+      setupEventListeners();
+      checkLoginStatus();
+    });
+
+    function setupEventListeners() {
+      // Navigation
+      document.getElementById('feed-link').onclick = () => {
+        viewingUserProfile = null;
+        showPage('feed');
+      };
+      document.getElementById('perfil-link').onclick = () => {
+        viewingUserProfile = null;
+        showPage('perfil');
+      };
+      document.getElementById('sobre-link').onclick = () => {
+        viewingUserProfile = null;
+        showPage('sobre');
+      };
+
+      // Auth
+      document.getElementById('login-tab').onclick = () => switchAuthTab('login');
+      document.getElementById('register-tab').onclick = () => switchAuthTab('register');
+      document.getElementById('login-btn').onclick = login;
+      document.getElementById('register-btn').onclick = register;
+      document.getElementById('logout-btn').onclick = logout;
+
+      // Posts
+      document.getElementById('post-media').onchange = previewMedia;
+      document.getElementById('create-post-btn').onclick = createPost;
+
+      // Modals
+      document.getElementById('media-modal').onclick = (e) => {
+        if (e.target === document.getElementById('media-modal')) closeModal();
+      };
+      document.querySelector('.close-modal').onclick = closeModal;
+      document.getElementById('save-edit-btn').onclick = saveEdit;
+      document.getElementById('cancel-edit-btn').onclick = closeEditModal;
+      document.getElementById('copy-link-btn').onclick = copyShareLink;
+      document.getElementById('close-share-btn').onclick = closeShareModal;
+
+      // Notifications
+      document.getElementById('notification-bell').onclick = toggleNotifications;
+
+      // Close dropdowns when clicking outside
+      document.onclick = (e) => {
+        if (!e.target.closest('.post-menu') && !e.target.closest('.notification-bell')) {
+          document.querySelectorAll('.post-dropdown.show').forEach(dropdown => {
+            dropdown.classList.remove('show');
+          });
+          document.getElementById('notification-dropdown').classList.remove('show');
+        }
+      };
+    }
+
+    // Data functions
+    function saveDataToServer() {
+      try {
+        const data = { users, posts, comments, notifications, timestamp: Date.now() };
+        localStorage.setItem('tropaServerData', JSON.stringify(data));
+        console.log('✅ Dados salvos no servidor!');
+      } catch (error) {
+        console.error('❌ Erro ao salvar:', error);
+      }
+    }
+
+    function loadDataFromServer() {
+      try {
+        const saved = localStorage.getItem('tropaServerData');
+        if (saved) {
+          const data = JSON.parse(saved);
+          users = data.users || users;
+          posts = data.posts || [];
+          comments = data.comments || [];
+          notifications = data.notifications || [];
+        }
+      } catch (error) {
+        console.error('❌ Erro ao carregar:', error);
+      }
+    }
+
+    function checkLoginStatus() {
+      const saved = localStorage.getItem('tropaUser');
+      if (saved) {
+        currentUser = JSON.parse(saved);
+        showLoggedInState();
+      } else {
+        showLoggedOutState();
+      }
+    }
+
+    function showLoggedInState() {
+      document.getElementById('auth-section').style.display = 'none';
+      document.getElementById('feed-section').style.display = 'block';
+      document.getElementById('user-info').style.display = 'block';
+      document.getElementById('perfil-link').style.display = 'block';
+      
+      document.getElementById('user-display-name').textContent = currentUser.displayName;
+      document.getElementById('user-avatar').textContent = currentUser.displayName.charAt(0).toUpperCase();
+      
+      updateNotificationsBadge();
+      generatePosts();
+      updateProfile();
+    }
+
+    function showLoggedOutState() {
+      document.getElementById('auth-section').style.display = 'block';
+      document.getElementById('feed-section').style.display = 'none';
+      document.getElementById('user-info').style.display = 'none';
+      document.getElementById('perfil-link').style.display = 'none';
+      document.getElementById('notification-badge').style.display = 'none';
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      
+      document.getElementById(pageId).classList.add('active');
+      document.getElementById(pageId + '-link').classList.add('active');
+      
+      if (pageId === 'feed') {
+        generatePosts();
+      } else if (pageId === 'perfil') {
+        updateProfile();
+      }
+    }
+
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      
+      if (tab === 'login') {
+        document.getElementById('login-tab').classList.add('active');
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('register-form').style.display = 'none';
+      } else {
+        document.getElementById('register-tab').classList.add('active');
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('register-form').style.display = 'block';
+      }
+    }
+
+    function login() {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+      const status = document.getElementById('login-status');
+
+      if (!username || !password) {
+        status.textContent = '⚠️ Preencha todos os campos.';
+        status.className = 'notice error';
+        return;
+      }
+
+      const user = users.find(u => 
+        (u.username === username || u.email === username) && u.password === password
+      );
+
+      if (user) {
+        currentUser = user;
+        localStorage.setItem('tropaUser', JSON.stringify(user));
+        status.textContent = '✅ Login realizado!';
+        status.className = 'notice success';
+        setTimeout(() => showLoggedInState(), 1000);
+      } else {
+        status.textContent = '❌ Dados inválidos.';
+        status.className = 'notice error';
+      }
+    }
+
+    function register() {
+      const username = document.getElementById('reg-username').value;
+      const email = document.getElementById('reg-email').value;
+      const displayName = document.getElementById('reg-displayname').value;
+      const password = document.getElementById('reg-password').value;
+      const confirm = document.getElementById('reg-confirm-password').value;
+      const status = document.getElementById('register-status');
+
+      if (!username || !email || !displayName || !password || !confirm) {
+        status.textContent = '⚠️ Preencha todos os campos.';
+        status.className = 'notice error';
+        return;
+      }
+
+      if (password !== confirm) {
+        status.textContent = '❌ Senhas não coincidem.';
+        status.className = 'notice error';
+        return;
+      }
+
+      if (users.find(u => u.username === username)) {
+        status.textContent = '❌ Usuário já existe.';
+        status.className = 'notice error';
+        return;
+      }
+
+      const newUser = { 
+        username, 
+        email, 
+        displayName, 
+        password,
+        followers: [],
+        following: []
+      };
+      users.push(newUser);
+      saveDataToServer();
+      
+      status.textContent = '✅ Conta criada! Faça login.';
+      status.className = 'notice success';
+      
+      setTimeout(() => {
+        switchAuthTab('login');
+        document.getElementById('login-username').value = username;
+      }, 1500);
+    }
+
+    function logout() {
+      localStorage.removeItem('tropaUser');
+      currentUser = null;
+      showLoggedOutState();
+      showPage('feed');
+    }
+
+    function previewMedia() {
+      const file = document.getElementById('post-media').files[0];
+      const preview = document.getElementById('media-preview');
+      
+      if (file) {
+        const url = URL.createObjectURL(file);
+        const isImage = file.type.startsWith('image/');
+        
+        if (isImage) {
+          preview.innerHTML = `<img src="${url}" alt="Preview">`;
+        } else {
+          preview.innerHTML = `<video src="${url}" controls></video>`;
+        }
+      } else {
+        preview.innerHTML = '';
+      }
+    }
+
+    function createPost() {
+      const text = document.getElementById('post-text').value;
+      const mediaFile = document.getElementById('post-media').files[0];
+      const status = document.getElementById('post-status');
+
+      if (!text && !mediaFile) {
+        status.textContent = '⚠️ Escreva algo ou adicione mídia.';
+        status.className = 'notice error';
+        return;
+      }
+
+      const newPost = {
+        id: Date.now(),
+        author: currentUser.username,
+        displayName: currentUser.displayName,
+        text: text,
+        time: 'agora',
+        likes: 0,
+        liked: false,
+        commentsCount: 0
+      };
+
+      if (mediaFile) {
+        newPost.media = {
+          type: mediaFile.type.startsWith('image/') ? 'image' : 'video',
+          url: URL.createObjectURL(mediaFile)
+        };
+      }
+
+      posts.unshift(newPost);
+      saveDataToServer();
+      
+      // Notify followers
+      notifyFollowers(newPost);
+      
+      document.getElementById('post-text').value = '';
+      document.getElementById('post-media').value = '';
+      document.getElementById('media-preview').innerHTML = '';
+      
+      status.textContent = '✅ Post criado!';
+      status.className = 'notice success';
+      
+      setTimeout(() => {
+        status.textContent = '';
+        status.className = 'notice';
+      }, 3000);
+
+      generatePosts();
+    }
+
+    function notifyFollowers(post) {
+      const user = users.find(u => u.username === post.author);
+      if (!user) return;
+      
+      user.followers.forEach(follower => {
+        const notification = {
+          id: Date.now(),
+          userId: follower,
+          postId: post.id,
+          author: post.author,
+          displayName: post.displayName,
+          text: post.text,
+          time: 'agora',
+          read: false
+        };
+        
+        notifications.push(notification);
+      });
+      
+      saveDataToServer();
+      updateNotificationsBadge();
+    }
+
+    function toggleNotifications() {
+      const dropdown = document.getElementById('notification-dropdown');
+      dropdown.classList.toggle('show');
+      
+      if (dropdown.classList.contains('show')) {
+        loadNotifications();
+      }
+    }
+
+    function loadNotifications() {
+      if (!currentUser) return;
+      
+      const userNotifications = notifications
+        .filter(n => n.userId === currentUser.username && !n.read)
+        .sort((a, b) => b.id - a.id);
+      
+      const dropdown = document.getElementById('notification-dropdown');
+      
+      if (userNotifications.length === 0) {
+        dropdown.innerHTML = `<div class="notification-item">Nenhuma notificação nova</div>`;
+        return;
+      }
+      
+      dropdown.innerHTML = userNotifications.map(notification => `
+        <div class="notification-item" onclick="viewNotification('${notification.id}', '${notification.postId}')">
+          <div class="notification-text">
+            <strong>${notification.displayName}</strong> postou algo novo: 
+            ${notification.text ? notification.text.substring(0, 50) + (notification.text.length > 50 ? '...' : '') : ''}
+          </div>
+          <div class="notification-time">${notification.time}</div>
+        </div>
+      `).join('');
+    }
+
+    function viewNotification(notificationId, postId) {
+      // Mark as read
+      const notification = notifications.find(n => n.id == notificationId);
+      if (notification) {
+        notification.read = true;
+        saveDataToServer();
+      }
+      
+      // Find the post
+      const post = posts.find(p => p.id == postId);
+      if (post) {
+        // Show the post in feed
+        showPage('feed');
+        // Scroll to the post
+        setTimeout(() => {
+          const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+          if (postElement) {
+            postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            postElement.classList.add('highlight-post');
+            setTimeout(() => postElement.classList.remove('highlight-post'), 2000);
+          }
+        }, 100);
+      }
+      
+      // Close dropdown
+      document.getElementById('notification-dropdown').classList.remove('show');
+      updateNotificationsBadge();
+    }
+
+    function updateNotificationsBadge() {
+      if (!currentUser) return;
+      
+      const unreadCount = notifications.filter(n => 
+        n.userId === currentUser.username && !n.read
+      ).length;
+      
+      const badge = document.getElementById('notification-badge');
+      
+      if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function generatePosts() {
+      const container = document.getElementById('posts-container');
+      const allPosts = [...posts, ...samplePosts];
+      
+      container.innerHTML = allPosts.map(post => `
+        <div class="post" data-post-id="${post.id}">
+          <div class="post-header">
+            <div class="post-avatar" onclick="viewUserProfile('${post.author}')">${post.displayName.charAt(0).toUpperCase()}</div>
+            <div>
+              <div class="post-author" onclick="viewUserProfile('${post.author}')">${post.displayName}</div>
+              <div class="post-time">${post.time}</div>
+            </div>
+            ${currentUser && post.author === currentUser.username ? `
+              <div class="post-menu" onclick="togglePostMenu(${post.id})">
+                <div class="post-menu-dots">⋯</div>
+                <div class="post-dropdown" id="dropdown-${post.id}">
+                  <button class="dropdown-item edit" onclick="editPost(${post.id})">✏️ Editar</button>
+                  <button class="dropdown-item delete" onclick="deletePost(${post.id})">🗑️ Excluir</button>
+                  ${post.media ? `<button class="dropdown-item download" onclick="downloadMedia('${post.media.url}', '${post.media.type}')">⬇️ Download</button>` : ''}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+          <div class="post-content">
+            ${post.text ? `<div class="post-text">${post.text}</div>` : ''}
+            ${post.media ? `
+              <div class="post-media" onclick="openModal('${post.media.url}', '${post.media.type}')">
+                ${post.media.type === 'image' ? 
+                  `<img src="${post.media.url}" class="post-image" alt="Post image">` :
+                  `<video src="${post.media.url}" class="post-video" controls></video>`
+                }
+              </div>
+            ` : ''}
+          </div>
+          <div class="post-actions">
+            <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+              ❤️ ${post.likes}
+            </button>
+            <button class="action-btn" onclick="toggleComments(${post.id})">
+              💬 ${comments.filter(c => c.postId === post.id).length}
+            </button>
+          </div>
+          <div class="comments-section" id="comments-${post.id}" style="display: none;">
+            <div class="comment-form">
+              <input type="text" class="comment-input" id="comment-input-${post.id}" placeholder="Escreva um comentário...">
+              <button class="comment-btn" onclick="addComment(${post.id})">Comentar</button>
+            </div>
+            <div class="comments-list" id="comments-list-${post.id}">
+              ${renderComments(post.id)}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderComments(postId) {
+      const postComments = comments.filter(c => c.postId == postId).sort((a, b) => b.id - a.id);
+      
+      if (postComments.length === 0) {
+        return '<p>Nenhum comentário ainda.</p>';
+      }
+      
+      return postComments.map(comment => {
+        const user = users.find(u => u.username === comment.author);
+        const displayName = user ? user.displayName : comment.author;
+        
+        return `
+          <div class="comment">
+            <div class="comment-avatar">${displayName.charAt(0).toUpperCase()}</div>
+            <div class="comment-content">
+              <div class="comment-author">${displayName}</div>
+              <div class="comment-text">${comment.text}</div>
+              <div class="comment-time">${comment.time}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleComments(postId) {
+      const commentsSection = document.getElementById(`comments-${postId}`);
+      commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addComment(postId) {
+      if (!currentUser) return;
+      
+      const commentInput = document.getElementById(`comment-input-${postId}`);
+      const commentText = commentInput.value.trim();
+      
+      if (!commentText) return;
+      
+      const newComment = {
+        id: Date.now(),
+        postId: postId,
+        author: currentUser.username,
+        text: commentText,
+        time: 'agora'
+      };
+      
+      comments.unshift(newComment);
+      saveDataToServer();
+      
+      // Update comments count in post
+      const post = posts.find(p => p.id == postId);
+      if (post) {
+        post.commentsCount = comments.filter(c => c.postId == postId).length;
+        saveDataToServer();
+      }
+      
+      // Update comments display
+      document.getElementById(`comments-list-${postId}`).innerHTML = renderComments(postId);
+      commentInput.value = '';
+      
+      // Notify post author
+      if (post && post.author !== currentUser.username) {
+        const notification = {
+          id: Date.now(),
+          userId: post.author,
+          postId: post.id,
+          author: currentUser.username,
+          displayName: currentUser.displayName,
+          text: `comentou no seu post: ${commentText.substring(0, 50)}${commentText.length > 50 ? '...' : ''}`,
+          time: 'agora',
+          read: false
+        };
+        
+        notifications.push(notification);
+        saveDataToServer();
+        
+        if (notification.userId === currentUser.username) {
+          updateNotificationsBadge();
+        }
+      }
+    }
+
+    function downloadMedia(url, type) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tropa-media-${Date.now()}.${type === 'image' ? 'jpg' : 'mp4'}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function viewUserProfile(username) {
+      if (!currentUser) return;
+      
+      const user = users.find(u => u.username === username);
+      if (!user) return;
+      
+      viewingUserProfile = user;
+      
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      
+      document.getElementById('user-profile').classList.add('active');
+      
+      const profileContent = document.getElementById('user-profile-content');
+      
+      const isFollowing = currentUser.following.includes(username);
+      const isCurrentUser = currentUser.username === username;
+      
+      profileContent.innerHTML = `
+        <div class="user-profile-header">
+          <div class="profile-avatar">${user.displayName.charAt(0).toUpperCase()}</div>
+          <div class="profile-info">
+            <h2>${user.displayName}</h2>
+            <p>@${user.username}</p>
+            <div class="profile-stats">
+              <div class="stat-item">
+                <div class="stat-number">${user.followers.length}</div>
+                <div class="stat-label">Seguidores</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${user.following.length}</div>
+                <div class="stat-label">Seguindo</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">${posts.filter(p => p.author === user.username).length}</div>
+                <div class="stat-label">Posts</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        ${!isCurrentUser ? `
+          <button class="${isFollowing ? 'unfollow-btn' : 'follow-btn'}" 
+                  onclick="${isFollowing ? 'unfollowUser(\'' + username + '\')' : 'followUser(\'' + username + '\')'}">
+            ${isFollowing ? 'Deixar de seguir' : 'Seguir'}
+          </button>
+        ` : ''}
+        
+        <div class="user-posts">
+          <h3>Posts</h3>
+          <div id="user-posts-container"></div>
+        </div>
+      `;
+      
+      // Show user's posts
+      const userPosts = [...posts, ...samplePosts].filter(p => p.author === username);
+      const postsContainer = document.getElementById('user-posts-container');
+      
+      if (userPosts.length === 0) {
+        postsContainer.innerHTML = '<p>Nenhum post ainda.</p>';
+      } else {
+        postsContainer.innerHTML = userPosts.map(post => `
+          <div class="post">
+            <div class="post-content">
+              ${post.text ? `<div class="post-text">${post.text}</div>` : ''}
+              ${post.media ? `
+                <div class="post-media" onclick="openModal('${post.media.url}', '${post.media.type}')">
+                  ${post.media.type === 'image' ? 
+                    `<img src="${post.media.url}" class="post-image" alt="Post image">` :
+                    `<video src="${post.media.url}" class="post-video" controls></video>`
+                  }
+                </div>
+              ` : ''}
+            </div>
+            <div class="post-actions">
+              <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                ❤️ ${post.likes}
+              </button>
+              <button class="action-btn" onclick="toggleComments(${post.id})">
+                💬 ${comments.filter(c => c.postId === post.id).length}
+              </button>
+              <div class="post-time">${post.time}</div>
+            </div>
+            <div class="comments-section" id="comments-${post.id}" style="display: none;">
+              <div class="comment-form">
+                <input type="text" class="comment-input" id="comment-input-${post.id}" placeholder="Escreva um comentário...">
+                <button class="comment-btn" onclick="addComment(${post.id})">Comentar</button>
+              </div>
+              <div class="comments-list" id="comments-list-${post.id}">
+                ${renderComments(post.id)}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function followUser(username) {
+      if (!currentUser || currentUser.following.includes(username)) return;
+      
+      currentUser.following.push(username);
+      
+      const user = users.find(u => u.username === username);
+      if (user) {
+        user.followers.push(currentUser.username);
+      }
+      
+      saveDataToServer();
+      
+      // Update UI
+      if (viewingUserProfile && viewingUserProfile.username === username) {
+        viewUserProfile(username);
+      }
+    }
+
+    function unfollowUser(username) {
+      if (!currentUser || !currentUser.following.includes(username)) return;
+      
+      currentUser.following = currentUser.following.filter(u => u !== username);
+      
+      const user = users.find(u => u.username === username);
+      if (user) {
+        user.followers = user.followers.filter(u => u !== currentUser.username);
+      }
+      
+      saveDataToServer();
+      
+      // Update UI
+      if (viewingUserProfile && viewingUserProfile.username === username) {
+        viewUserProfile(username);
+      }
+    }
+
+    function togglePostMenu(postId) {
+      const dropdown = document.getElementById(`dropdown-${postId}`);
+      const isVisible = dropdown.classList.contains('show');
+      
+      // Close all other dropdowns
+      document.querySelectorAll('.post-dropdown.show').forEach(d => d.classList.remove('show'));
+      
+      // Toggle current dropdown
+      if (!isVisible) {
+        dropdown.classList.add('show');
+      }
+    }
+
+    function editPost(postId) {
+      const post = posts.find(p => p.id === postId);
+      if (!post) return;
+
+      editingPostId = postId;
+      document.getElementById('edit-text').value = post.text || '';
+      document.getElementById('edit-modal').style.display = 'block';
+      
+      // Close dropdown
+      document.getElementById(`dropdown-${postId}`).classList.remove('show');
+    }
+
+    function saveEdit() {
+      if (!editingPostId) return;
+
+      const newText = document.getElementById('edit-text').value;
+      const post = posts.find(p => p.id === editingPostId);
+      
+      if (post) {
+        post.text = newText;
+        saveDataToServer();
+        generatePosts();
+      }
+
+      closeEditModal();
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+      editingPostId = null;
+    }
+
+    function deletePost(postId) {
+      if (confirm('Tem certeza que deseja excluir este post?')) {
+        posts = posts.filter(p => p.id !== postId);
+        comments = comments.filter(c => c.postId !== postId);
+        saveDataToServer();
+        generatePosts();
+      }
+      
+      // Close dropdown
+      document.getElementById(`dropdown-${postId}`).classList.remove('show');
+    }
+
+    function sharePost(postId) {
+      const shareUrl = `${window.location.origin}${window.location.pathname}?post=${postId}`;
+      document.getElementById('share-link').textContent = shareUrl;
+      document.getElementById('share-modal').style.display = 'block';
+      
+      // Close dropdown
+      document.getElementById(`dropdown-${postId}`).classList.remove('show');
+    }
+
+    function copyShareLink() {
+      const shareLink = document.getElementById('share-link').textContent;
+      navigator.clipboard.writeText(shareLink).then(() => {
+        const btn = document.getElementById('copy-link-btn');
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Copiado!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+
+    function closeShareModal() {
+      document.getElementById('share-modal').style.display = 'none';
+    }
+
+    function toggleLike(postId) {
+      const allPosts = [...posts, ...samplePosts];
+      const post = allPosts.find(p => p.id === postId);
+      
+      if (post) {
+        if (post.liked) {
+          post.likes--;
+          post.liked = false;
+        } else {
+          post.likes++;
+          post.liked = true;
+        }
+        saveDataToServer();
+        generatePosts();
+      }
+    }
+
+    function openModal(url, type) {
+      const modal = document.getElementById('media-modal');
+      const content = document.getElementById('modal-content');
+      
+      if (type === 'image') {
+        content.innerHTML = `<img src="${url}" alt="Imagem expandida">`;
+      } else {
+        content.innerHTML = `<video src="${url}" controls autoplay></video>`;
+      }
+      
+      modal.style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('media-modal').style.display = 'none';
+    }
+
+    function updateProfile() {
+      if (currentUser) {
+        document.getElementById('profile-content').innerHTML = `
+          <div class="user-profile-header">
+            <div class="profile-avatar">${currentUser.displayName.charAt(0).toUpperCase()}</div>
+            <div class="profile-info">
+              <h2>${currentUser.displayName}</h2>
+              <p>@${currentUser.username}</p>
+              <div class="profile-stats">
+                <div class="stat-item">
+                  <div class="stat-number">${currentUser.followers.length}</div>
+                  <div class="stat-label">Seguidores</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">${currentUser.following.length}</div>
+                  <div class="stat-label">Seguindo</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">${posts.filter(p => p.author === currentUser.username).length}</div>
+                  <div class="stat-label">Posts</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="user-posts">
+            <h3>Meus Posts</h3>
+            <div id="my-posts-container"></div>
+          </div>
+        `;
+        
+        // Show user's posts
+        const userPosts = [...posts, ...samplePosts].filter(p => p.author === currentUser.username);
+        const postsContainer = document.getElementById('my-posts-container');
+        
+        if (userPosts.length === 0) {
+          postsContainer.innerHTML = '<p>Você ainda não fez nenhum post.</p>';
+        } else {
+          postsContainer.innerHTML = userPosts.map(post => `
+            <div class="post">
+              <div class="post-content">
+                ${post.text ? `<div class="post-text">${post.text}</div>` : ''}
+                ${post.media ? `
+                  <div class="post-media" onclick="openModal('${post.media.url}', '${post.media.type}')">
+                    ${post.media.type === 'image' ? 
+                      `<img src="${post.media.url}" class="post-image" alt="Post image">` :
+                      `<video src="${post.media.url}" class="post-video" controls></video>`
+                    }
+                  </div>
+                ` : ''}
+              </div>
+              <div class="post-actions">
+                <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                  ❤️ ${post.likes}
+                </button>
+                <button class="action-btn" onclick="toggleComments(${post.id})">
+                  💬 ${comments.filter(c => c.postId === post.id).length}
+                </button>
+                <div class="post-time">${post.time}</div>
+              </div>
+              <div class="comments-section" id="comments-${post.id}" style="display: none;">
+                <div class="comment-form">
+                  <input type="text" class="comment-input" id="comment-input-${post.id}" placeholder="Escreva um comentário...">
+                  <button class="comment-btn" onclick="addComment(${post.id})">Comentar</button>
+                </div>
+                <div class="comments-list" id="comments-list-${post.id}">
+                  ${renderComments(post.id)}
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+  </script>
+</body>
+</html>
